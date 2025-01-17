@@ -36,26 +36,26 @@ let BMC = {
     return new Promise(res=>res(new BMC.Data(tables)));
   },
   bmcify(data){
-    let fileSize = 32+data.tables.reduce(t=>Math.ceil((t.colors.length*4+16)/32)*32,0);
+    let fileSize = 32+data.tables.reduce((a,c)=>a+Math.ceil((c.length*4+16)/32)*32,0);
     let buffer = new Uint8Array(fileSize);
     let view = new DataView(buffer.buffer);
     let te = new TextEncoder();
-    buffer.set(te.encode("MGCbmc1"),0);
+    buffer.set(0,te.encode("MGCbmc1"));
     view.setUint32(8,fileSize);
     view.setUint16(14,data.tables.length);
     let pointer = 32;
     let header = te.encode("CLT1");
-    for(let [i,t] of tables.entries()){
+    for(let [i,t] of data.tables.entries()){
       pointer = Math.ceil(pointer/32)*32;
-      buffer.set(header,pointer);
+      buffer.set(pointer,header);
       pointer+=4;
       view.setUint16(pointer,i);
       pointer+=2;
-      view.setUint16(pointer,Math.ceil((16+t.colors.length)/32)*32);
+      view.setUint16(pointer,Math.ceil((16+t.length)/32)*32);
       pointer+=2;
       view.setUint8(pointer,t.version);
       pointer+=6;
-      view.setUint16(pointer,t.colors.length);
+      view.setUint16(pointer,t.length);
       pointer+=2;
       for(let c of t){
         buffer[pointer] = c.r;
@@ -68,12 +68,12 @@ let BMC = {
     return buffer;
   },
   Data:function(tables=[]){
-    if(colors instanceof BMC.Data){
+    if(tables instanceof BMC.Data){
       let old = arguments[0];
       this.tables = new Array(old.tables.length);
       for(let [i,t] of old.tables.entries()){
         this.tables[i] = new Array(t.length);
-        for(let [j,c] of t)
+        for(let [j,c] of t.entries())
           this.tables[i][j] = {r:c.r,g:c.g,b:c.b,a:c.a};
       }
       return this;
