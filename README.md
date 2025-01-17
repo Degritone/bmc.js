@@ -40,7 +40,7 @@ BMC.Data.tables = [
 You can copy a BMC.Data object by passing one such object into its constructor.
 ```js
 BMC.parseArrayBuffer(someArrayBuffer).then(colorTables=>{
-  let colorTableCopy = BMD.Data(colorTables);
+  let colorTableCopy = new BMC.Data(colorTables);
 });
 ```
 
