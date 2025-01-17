@@ -40,18 +40,18 @@ let BMC = {
     let buffer = new Uint8Array(fileSize);
     let view = new DataView(buffer.buffer);
     let te = new TextEncoder();
-    buffer.set(0,te.encode("MGCbmc1"));
+    buffer.set(te.encode("MGCLbmc1"),0);
     view.setUint32(8,fileSize);
     view.setUint16(14,data.tables.length);
     let pointer = 32;
     let header = te.encode("CLT1");
     for(let [i,t] of data.tables.entries()){
       pointer = Math.ceil(pointer/32)*32;
-      buffer.set(pointer,header);
+      buffer.set(header,pointer);
       pointer+=4;
       view.setUint16(pointer,i);
       pointer+=2;
-      view.setUint16(pointer,Math.ceil((16+t.length)/32)*32);
+      view.setUint16(pointer,Math.ceil((16+t.length*4)/32)*32);
       pointer+=2;
       view.setUint8(pointer,t.version);
       pointer+=6;
@@ -61,7 +61,7 @@ let BMC = {
         buffer[pointer] = c.r;
         buffer[pointer+1] = c.g;
         buffer[pointer+2] = c.b;
-        buffer[pointer+4] = c.a;
+        buffer[pointer+3] = c.a;
         pointer+=4;
       }
     }
